@@ -13,6 +13,7 @@ set(INSTALL_PATH "$ENV{HOME}/.flsgx/deps" CACHE PATH "install path of thirdparty
 
 # set up the root path of thirdparty packages
 set(Protobuf_ROOT "${INSTALL_PATH}/protobuf" CACHE PATH "root path of Protobuf")
+set(Grpc_ROOT "${INSTALL_PATH}/grpc" CACHE PATH "root path of Gprc")
 
 # dependencies
 include(FindRequiredPackage)
@@ -21,7 +22,7 @@ include(FindRequiredPackage)
 FindRequiredPackage(NAME Protobuf)
 
 #---[ grpc
-#FindRequiredPackage(NAME Grpc)
+FindRequiredPackage(NAME Grpc)
 
 # compilation
 set(CMAKE_CXX_FLAGS 
