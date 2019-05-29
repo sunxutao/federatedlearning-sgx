@@ -25,11 +25,19 @@ include(FindRequiredPackage)
 
 #---[ protobuf
 FindRequiredPackage(NAME Protobuf)
-set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+if (Protobuf_PROTOC_EXECUTABLE)
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+else ()
+  set(_PROTOBUF_PROTOC "${Protobuf_ROOT}/bin/protoc")
+endif ()
 
 #---[ grpc
 FindRequiredPackage(NAME Grpc)
-set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:grpc::grpc_cpp_plugin>)
+if (Grpc_EXECUTABLES)
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:grpc::grpc_cpp_plugin>)
+else ()
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE "${Grpc_ROOT}/bin/grpc_cpp_plugin")
+endif ()
 
 # compilation
 set(CMAKE_CXX_FLAGS 

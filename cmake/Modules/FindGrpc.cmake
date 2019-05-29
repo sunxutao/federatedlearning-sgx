@@ -45,15 +45,15 @@ find_package_handle_standard_args(Grpc
   Grpc_EXECUTABLES
 )
 
-if(Grpc_EXECUTABLES)
-    if(NOT TARGET grpc::grpc_cpp_plugin)
+if (Grpc_EXECUTABLES)
+    if (NOT TARGET grpc::grpc_cpp_plugin)
         add_executable(grpc::grpc_cpp_plugin IMPORTED)
-        if(EXISTS "${Grpc_EXECUTABLES}")
+        if (EXISTS "${Grpc_EXECUTABLES}")
           set_target_properties(grpc::grpc_cpp_plugin PROPERTIES
             IMPORTED_LOCATION "${Grpc_EXECUTABLES}")
-        endif()
-    endif()
-endif()
+        endif ()
+    endif ()
+endif ()
 
 mark_as_advanced(
   GRPC_ROOT_DIR
