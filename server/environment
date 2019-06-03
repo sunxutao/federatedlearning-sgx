@@ -1,0 +1,4 @@
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOME/.flsgx/deps/grpc/lib/pkgconfig:$HOME/.flsgx/deps/protobuf/lib/pkgconfig
+export CPATH="${HOME}/.flsgx/deps/grpc/include:${HOME}/.flsgx/deps/protobuf/include:${CPATH}"
+export LD_LIBRARY_PATH="${HOME}/.flsgx/deps/grpc/lib:${HOME}/.flsgx/deps/protobuf/lib:${LD_LIBRARY_PATH}"
+export LIBRARY_PATH="${HOME}/.flsgx/deps/grpc/lib:${HOME}/.flsgx/deps/protobuf/lib:${LIBRARY_PATH}"

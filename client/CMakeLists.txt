@@ -81,27 +81,24 @@ include_directories(${INCLUDE_DIRS} ${GRPC_GENERATED})
 
 # source code
 if (ROUTE)
-  set(SERVER_SOURCES src/route_guide/route_guide_server.cc)
   set(CLIENT_SOURCES src/route_guide/route_guide_client.cc)
 else ()
-  set(SERVER_SOURCES src/greeter/greeter_server.cc)
   set(CLIENT_SOURCES src/greeter/greeter_client.cc)
 endif ()
 
 # Append generated *.pb.cc files for both server executable and client executable
-list(APPEND SERVER_SOURCES ${hw_proto_srcs})
-list(APPEND SERVER_SOURCES ${hw_grpc_srcs})
 list(APPEND CLIENT_SOURCES ${hw_proto_srcs})
 list(APPEND CLIENT_SOURCES ${hw_grpc_srcs})
 
 if (ROUTE)
-  list(APPEND SERVER_SOURCES src/route_guide/helper.cc)
   list(APPEND CLIENT_SOURCES src/route_guide/helper.cc)
 endif ()
 
 # target
-add_executable(server ${SERVER_SOURCES})
-target_link_libraries(server ${LINK_LIBS})
-
-add_executable(client ${CLIENT_SOURCES})
-target_link_libraries(client ${LINK_LIBS})
+if (ROUTE)
+  add_executable(client_route ${CLIENT_SOURCES})
+  target_link_libraries(client_route ${LINK_LIBS})
+else ()
+  add_executable(client ${CLIENT_SOURCES})
+  target_link_libraries(client ${LINK_LIBS})
+endif ()

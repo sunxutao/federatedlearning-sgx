@@ -173,7 +173,7 @@ class RouteGuideImpl final : public RouteGuide::Service {
 };
 
 void RunServer(const std::string& db_path) {
-  std::string server_address("0.0.0.0:50051");
+  std::string server_address("172.26.187.101:5001");
   RouteGuideImpl service(db_path);
 
   ServerBuilder builder;
