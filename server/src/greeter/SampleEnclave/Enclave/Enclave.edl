@@ -52,6 +52,7 @@ enclave {
 
     trusted {
         public void printf_helloworld();
+        public void RunServer();
     };
 
     /* 

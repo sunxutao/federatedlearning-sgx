@@ -1,4 +1,20 @@
-export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOME/.flsgx/deps/grpc/lib/pkgconfig:$HOME/.flsgx/deps/protobuf/lib/pkgconfig
-export CPATH="${HOME}/.flsgx/deps/grpc/include:${HOME}/.flsgx/deps/protobuf/include:${CPATH}"
-export LD_LIBRARY_PATH="${HOME}/.flsgx/deps/grpc/lib:${HOME}/.flsgx/deps/protobuf/lib:${LD_LIBRARY_PATH}"
-export LIBRARY_PATH="${HOME}/.flsgx/deps/grpc/lib:${HOME}/.flsgx/deps/protobuf/lib:${LIBRARY_PATH}"
+export SGX_SDK=/home/sunxutao/projects/sgx_sdk/sgxsdk
+export PATH=$PATH:$SGX_SDK/bin:$SGX_SDK/bin/x64
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$SGX_SDK/pkgconfig:$HOME/.flsgx/deps/grpc/lib/pkgconfig:$HOME/.flsgx/deps/protobuf/lib/pkgconfig
+if [ -z "$LD_LIBRARY_PATH" ]; then
+     export LD_LIBRARY_PATH=$SGX_SDK/sdk_libs:$HOME/.flsgx/deps/grpc/lib:$HOME/.flsgx/deps/protobuf/lib
+else
+     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SGX_SDK/sdk_libs:$HOME/.flsgx/deps/grpc/lib:$HOME/.flsgx/deps/protobuf/lib
+fi
+
+if [ -z "$LIBRARY_PATH" ]; then
+     export LIBRARY_PATH=$HOME/.flsgx/deps/grpc/lib:$HOME/.flsgx/deps/protobuf/lib
+else
+     export LIBRARY_PATH=$LIBRARY_PATH:$HOME/.flsgx/deps/grpc/lib:$HOME/.flsgx/deps/protobuf/lib
+fi
+
+if [ -z "$CPATH" ]; then
+     export CPATH=$HOME/.flsgx/deps/grpc/include:$HOME/.flsgx/deps/protobuf/include
+else
+     export CPATH=$CPATH:$HOME/.flsgx/deps/grpc/include:$HOME/.flsgx/deps/protobuf/include
+fi

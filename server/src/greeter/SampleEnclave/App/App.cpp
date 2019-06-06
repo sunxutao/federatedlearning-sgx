@@ -203,6 +203,7 @@ int SGX_CDECL main(int argc, char *argv[])
     ecall_thread_functions();
 
     printf_helloworld(global_eid);
+    RunServer(global_eid);
 
     /* Destroy the enclave */
     sgx_destroy_enclave(global_eid);
