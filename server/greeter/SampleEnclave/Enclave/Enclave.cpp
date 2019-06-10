@@ -29,7 +29,7 @@
  *
  */
 
-#include "Enclave.h"
+// #include "Enclave.h"
 #include "Enclave_t.h" /* print_string */
 #include <stdarg.h>
 #include <stdio.h> /* vsnprintf */

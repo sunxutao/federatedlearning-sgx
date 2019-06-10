@@ -16,55 +16,41 @@
 
 HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
+PROJECT_PATH = $(HOME)/projects/federatedlearning-sgx/server
 CXX = g++
-CPPFLAGS += `pkg-config --cflags protobuf grpc`
+CPPFLAGS += `pkg-config --cflags protobuf grpc`  -Iprotobuf -Iinclude
 CXXFLAGS += -std=c++11
 ifeq ($(SYSTEM),Darwin)
-LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
+LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
            -lgrpc++_reflection\
            -ldl
 else
-LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
+LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
            -ldl
 endif
-# PROTOC = protoc
+
 PROTOC ?= $(HOME)/.flsgx/deps/protobuf/bin/protoc
 GRPC_CPP_PLUGIN ?= $(HOME)/.flsgx/deps/grpc/bin/grpc_cpp_plugin
-# GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 GRPC_CPP_PLUGIN_PATH ?= $(HOME)/.flsgx/deps/grpc/bin/grpc_cpp_plugin
 
-PROTOS_PATH = ../../protos
+PROTOS_PATH = $(PROJECT_PATH)/protos
 
 vpath %.proto $(PROTOS_PATH)
 
-all: system-check greeter_client greeter_server # greeter_async_client greeter_async_client2 greeter_async_server
+all: system-check route_guide_server
 
-greeter_client: helloworld.pb.o helloworld.grpc.pb.o greeter_client.o
+route_guide_server: protobuf/route_guide.pb.o protobuf/route_guide.grpc.pb.o route_guide_server.o helper.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
-greeter_server: helloworld.pb.o helloworld.grpc.pb.o greeter_server.o
-	$(CXX) $^ $(LDFLAGS) -o $@
+protobuf/%.grpc.pb.cc: %.proto
+	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=./protobuf --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
 
-# greeter_async_client: helloworld.pb.o helloworld.grpc.pb.o greeter_async_client.o
-# 	$(CXX) $^ $(LDFLAGS) -o $@
-
-# greeter_async_client2: helloworld.pb.o helloworld.grpc.pb.o greeter_async_client2.o
-# 	$(CXX) $^ $(LDFLAGS) -o $@
-
-# greeter_async_server: helloworld.pb.o helloworld.grpc.pb.o greeter_async_server.o
-# 	$(CXX) $^ $(LDFLAGS) -o $@
-
-.PRECIOUS: %.grpc.pb.cc
-%.grpc.pb.cc: %.proto
-	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
-
-.PRECIOUS: %.pb.cc
-%.pb.cc: %.proto
-	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
+protobuf/%.pb.cc: %.proto
+	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=./protobuf $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h greeter_client greeter_server greeter_async_client greeter_async_client2 greeter_async_server
+	rm -f *.o protobuf/* route_guide_server
 
 
 # The following is to test your system and ensure a smoother experience.

@@ -36,8 +36,9 @@ SGX_MODE ?= HW
 SGX_ARCH ?= x64
 SGX_DEBUG ?= 1
 
-CPPFLAGS += `pkg-config --cflags protobuf grpc`
-CXXFLAGS += -std=c++11
+# CPPFLAGS += `pkg-config --cflags protobuf grpc`
+# CXXFLAGS += -std=c++11
+PROJECT_PATH = $(HOME)/projects/federatedlearning-sgx/server
 ifeq ($(SYSTEM),Darwin)
 LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
            -lgrpc++_reflection\
@@ -53,7 +54,7 @@ GRPC_CPP_PLUGIN ?= $(HOME)/.flsgx/deps/grpc/bin/grpc_cpp_plugin
 # GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 GRPC_CPP_PLUGIN_PATH ?= $(HOME)/.flsgx/deps/grpc/bin/grpc_cpp_plugin
 
-PROTOS_PATH = ../../../protos
+PROTOS_PATH = $(PROJECT_PATH)/protos
 
 vpath %.proto $(PROTOS_PATH)
 
@@ -144,9 +145,9 @@ endif
 Crypto_Library_Name := sgx_tcrypto
 
 Enclave_Cpp_Files := Enclave/Enclave.cpp $(wildcard Enclave/Edger8rSyntax/*.cpp) $(wildcard Enclave/TrustedLibrary/*.cpp)
-Enclave_Include_Paths := -IInclude -IEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/libcxx -Igrpcout
+Enclave_Include_Paths := -IInclude -IEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/libcxx -Iprotobuf
 
-Enclave_C_Flags := $(Enclave_Include_Paths) -fvisibility=hidden -fpie -ffunction-sections -fdata-sections #-nostdinc
+Enclave_C_Flags := $(Enclave_Include_Paths) -fvisibility=hidden -fpie -ffunction-sections -fdata-sections -nostdinc
 CC_BELOW_4_9 := $(shell expr "`$(CC) -dumpversion`" \< "4.9")
 ifeq ($(CC_BELOW_4_9), 1)
 	Enclave_C_Flags += -fstack-protector
@@ -237,7 +238,7 @@ ifneq ($(Build_Mode), HW_RELEASE)
 endif
 
 .config_$(Build_Mode)_$(SGX_ARCH):
-	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_Cpp_Objects) App/Enclave_u.* $(Enclave_Cpp_Objects) Enclave/Enclave_t.*
+	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_Cpp_Objects) App/Enclave_u.* $(Enclave_Cpp_Objects) Enclave/Enclave_t.* protobuf/*
 	@touch .config_$(Build_Mode)_$(SGX_ARCH)
 
 ######## App Objects ########
@@ -276,7 +277,7 @@ Enclave/%.o: Enclave/%.cpp Enclave/Enclave_t.h
 	@$(CXX) $(SGX_COMMON_CXXFLAGS) $(Enclave_Cpp_Flags) -c $< -o $@
 	@echo "CXX  <=  $<"
 
-$(Enclave_Name): grpcout/helloworld.pb.o grpcout/helloworld.grpc.pb.o Enclave/Enclave_t.o $(Enclave_Cpp_Objects)
+$(Enclave_Name): protobuf/helloworld.pb.o protobuf/helloworld.grpc.pb.o Enclave/Enclave_t.o $(Enclave_Cpp_Objects)
 	@$(CXX) $^ $(LDFLAGS) -o $@ $(Enclave_Link_Flags)
 	@echo "LINK =>  $@"
 
@@ -284,15 +285,15 @@ $(Signed_Enclave_Name): $(Enclave_Name)
 	@$(SGX_ENCLAVE_SIGNER) sign -key Enclave/Enclave_private.pem -enclave $(Enclave_Name) -out $@ -config $(Enclave_Config_File)
 	@echo "SIGN =>  $@"
 
-.PRECIOUS: %.grpc.pb.cc
-grpcout/%.grpc.pb.cc: %.proto
-	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=./grpcout --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
+.PRECIOUS: protobuf/%.grpc.pb.cc
+protobuf/%.grpc.pb.cc: %.proto
+	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=./protobuf --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
 
-.PRECIOUS: %.pb.cc
-grpcout/%.pb.cc: %.proto
-	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=./grpcout $<
+.PRECIOUS: protobuf/%.pb.cc
+protobuf/%.pb.cc: %.proto
+	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=./protobuf $<
 
 .PHONY: clean
 
 clean:
-	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_Cpp_Objects) App/Enclave_u.* $(Enclave_Cpp_Objects) Enclave/Enclave_t.* grpcout/*
+	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_Cpp_Objects) App/Enclave_u.* $(Enclave_Cpp_Objects) Enclave/Enclave_t.* protobuf/*
